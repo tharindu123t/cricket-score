@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cricket Score Board</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+
+    .scoreboard {
+      background: #fff;
+      padding: 20px;
+      margin: 15px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 350px;
+    }
+
+    h2 {
+      color: #007bff;
+    }
+
+    .stats {
+      font-size: 18px;
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      background: #28a745;
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    .reset {
+      background: #dc3545;
+    }
+
+    .inning-btn {
+      background: #ffc107;
+      color: #000;
+    }
+
+    input[type="text"] {
+      padding: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+      width: 80%;
+      text-align: center;
+    }
+
+    .summary {
+      margin-top: 30px;
+    }
+
+    textarea {
+      width: 90%;
+      height: 150px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏏 Cricket Scoreboard</h1>
+
+  <div>
+    Toss Winner: 
+    <input type="text" id="toss" placeholder="e.g., Team A won the toss and chose to bat">
+  </div>
+
+  <div class="container">
+    <div class="scoreboard" id="teamA">
+      <h2>Team A</h2>
+      <input type="text" id="teamAName" value="Team A">
+      <div class="stats">
+        <span id="scoreA">Runs: 0</span> |
+        <span id="wicketA">Wickets: 0</span> |
+        <span id="overA">Overs: 0.0</span>
+      </div>
+      <button onclick="addRun('A', 1)">+1 Run</button>
+      <button onclick="addRun('A', 4)">+4 Runs</button>
+      <button onclick="addRun('A', 6)">+6 Runs</button>
+      <button onclick="addBall('A')">+1 Ball</button>
+      <button onclick="addWicket('A')">+1 Wicket</button>
+    </div>
+
+    <div class="scoreboard" id="teamB">
+      <h2>Team B</h2>
+      <input type="text" id="teamBName" value="Team B">
+      <div class="stats">
+        <span id="scoreB">Runs: 0</span> |
+        <span id="wicketB">Wickets: 0</span> |
+        <span id="overB">Overs: 0.0</span>
+      </div>
+      <button onclick="addRun('B', 1)">+1 Run</button>
+      <button onclick="addRun('B', 4)">+4 Runs</button>
+      <button onclick="addRun('B', 6)">+6 Runs</button>
+      <button onclick="addBall('B')">+1 Ball</button>
+      <button onclick="addWicket('B')">+1 Wicket</button>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <button class="inning-btn" onclick="changeInning()">🔁 Change Inning</button>
+    <button class="reset" onclick="resetMatch()">🔄 Reset Match</button>
+    <button onclick="generateSummary()">📋 Show Summary</button>
+    <button onclick="downloadSummary()">💾 Download Summary</button>
+  </div>
+
+  <div class="summary">
+    <h2>Match Summary</h2>
+    <textarea id="matchSummary" readonly></textarea>
+  </div>
+
+  <script>
+    const teamData = {
+      A: { runs: 0, wickets: 0, balls: 0 },
+      B: { runs: 0, wickets: 0, balls: 0 }
+    };
+
+    function updateDisplay(team) {
+      document.getElementById("score" + team).textContent = `Runs: ${teamData[team].runs}`;
+      document.getElementById("wicket" + team).textContent = `Wickets: ${teamData[team].wickets}`;
+      const overs = Math.floor(teamData[team].balls / 6) + "." + (teamData[team].balls % 6);
+      document.getElementById("over" + team).textContent = `Overs: ${overs}`;
+    }
+
+    function addRun(team, runs) {
+      teamData[team].runs += runs;
+      updateDisplay(team);
+    }
+
+    function addBall(team) {
+      teamData[team].balls++;
+      updateDisplay(team);
+    }
+
+    function addWicket(team) {
+      if (teamData[team].wickets < 10) {
+        teamData[team].wickets++;
+        teamData[team].balls++;
+        updateDisplay(team);
+      }
+    }
+
+    function resetMatch() {
+      teamData.A = { runs: 0, wickets: 0, balls: 0 };
+      teamData.B = { runs: 0, wickets: 0, balls: 0 };
+      updateDisplay('A');
+      updateDisplay('B');
+      document.getElementById("matchSummary").value = "";
+    }
+
+    function changeInning() {
+      alert("Inning Changed! Start scoring for the next team.");
+    }
+
+    function generateSummary() {
+      const nameA = document.getElementById("teamAName").value;
+      const nameB = document.getElementById("teamBName").value;
+      const toss = document.getElementById("toss").value;
+      const summary = 
+`${toss}
+
+${nameA} - ${teamData.A.runs}/${teamData.A.wickets} in ${Math.floor(teamData.A.balls / 6)}.${teamData.A.balls % 6} overs
+${nameB} - ${teamData.B.runs}/${teamData.B.wickets} in ${Math.floor(teamData.B.balls / 6)}.${teamData.B.balls % 6} overs
+
+${teamData.A.runs > teamData.B.runs ? nameA + " won!" : teamData.B.runs > teamData.A.runs ? nameB + " won!" : "Match is tied!"}`;
+
+      document.getElementById("matchSummary").value = summary;
+    }
+
+    function downloadSummary() {
+      const text = document.getElementById("matchSummary").value;
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "cricket-match-summary.txt";
+      link.click();
+    }
+
+    updateDisplay("A");
+    updateDisplay("B");
+  </script>
+</body>
+</html>
+
